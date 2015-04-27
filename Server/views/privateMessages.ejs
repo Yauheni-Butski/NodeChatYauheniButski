@@ -1,0 +1,29 @@
+<!-- Modal -->
+<div class="modal fade" id="myPrivateMessages" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span
+                            class="sr-only">Close</span></button>
+                <h4 class="modal-title" id="myModalLabel">Private messages with <b data-bind="text:activePrivateUser().nick"></b></h4>
+            </div>
+            <div class="modal-body">
+                <div class="chat">
+                    <div class="alignChatArea">
+                        <div class="messages" style="width: 100%" data-bind="foreach:activePrivateMessages">
+                            <div><b  data-bind="text:$data.nick" class="user"></b> : <span  data-bind="text:$data.message"></span></div>
+                        </div>
+                    </div>
+
+                    <div class="panel">
+                        <% if (user) { %>
+                        <span class="nick">Send message as <b id="privateNickName"><%=user %></b></span>
+                        <% }%>
+                        <input type="text" data-bind="value:sendingPrivateMessages,hasfocus:hasPrivateFocus" name="message_text" class="inputMessage" id="PrivateMessageText">
+                        <button data-bind="click:sendPrivateMessage" type="button" id="privateMessageBtn" class="btn btn-primary">Send</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

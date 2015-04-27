@@ -1,0 +1,88 @@
+#!/usr/bin/env node
+/** For chat,socket io **/
+var PORT = process.env.PORT || '3000';
+var options = {
+//    'log level': 0
+};
+
+/** Module dependencies.*/
+//TODO. Maybe delete this
+delete require.cache[require.resolve('../app')]
+var app = require('../app');
+var debug = require('debug')('3.2');
+var http = require('http');
+
+/** Get port from environment and store in Express*/
+app.set('port',PORT);
+
+/**Create HTTP server */
+//var server = http.createServer(app);
+var server = app.listen(app.get('port'), function() {
+  debug('Express server listening on port ' + server.address().port);
+});
+
+/** Create socket */
+var io = require('socket.io').listen(server, options);
+var listOfUsers = [];
+var UserSockets = {};
+//Subscribe to event on new user
+io.sockets.on('connection', function (client) {
+  var idClientSocket = (client.id).toString();
+
+  //subscribe to event on message from client
+  client.on('message', function (message) {
+    try {
+      //send message yourself
+      client.emit('message', message);
+      //send message to all client except yourself
+      client.broadcast.emit('message', message);
+    } catch (e) {
+      console.log(e);
+      client.disconnect();
+    }
+  });
+  //subscribe to event on "connect" from user
+  client.on('addNewUser',function(data) {
+    try{
+      //send to user all other users in room
+      client.emit('showUsersInRoom',listOfUsers);
+      //after that, add current user to list of user on server
+      listOfUsers.push({id:idClientSocket,nick:data.nick}); //+ socket:client
+      UserSockets[idClientSocket] = client;
+      //send message to all client except yourself
+      client.broadcast.emit('addNewUser',{id:idClientSocket,nick:data.nick});
+    }
+    catch (e){
+      console.log(e);
+    }
+  });
+  //when user disconnect
+  client.on('disconnect',function()
+  {
+    //We know, who disconnected. Say about it everybody
+    //1. Delete user from user list.
+    for (var i=0;i < listOfUsers.length;i++)
+    {
+      if (listOfUsers[i].id == idClientSocket)
+      {
+        //2. Say about it everyone
+        io.sockets.emit('userDisconnected',{id:idClientSocket,nick:listOfUsers[i].nick});
+        //3.After we say everybody about disconnect - we delete user from userlist
+        listOfUsers.splice(i,1);
+        delete UserSockets[idClientSocket];
+      }
+    }
+  });
+  //when one user send privaet message to another
+  client.on('privateMessage',function(data)
+  {
+    //1. Find destination socket.
+    //we find needed destination and send message to him
+
+    UserSockets[data.destination].emit('incomingPrivateMessage',{message:data.message.message,nick:data.message.nick,idAuthor:data.idAuthor}); // message and
+     //listOfUsers[i].socket.emit('incomingPrivateMessage',{message:data.message,id:listOfUsers[i].id,nick:listOfUsers[i].nick});
+  });
+});
+
+/**Listen on provided port, on all network interfaces*/
+server.listen(app.get('port'));

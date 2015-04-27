@@ -1,0 +1,86 @@
+body {
+  padding: 50px;
+  font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+}
+
+a {
+  color: #00B7FF;
+}
+
+.demo {
+  width: 600px;
+  margin: 20px auto;
+  padding: 10px;
+  color: #4F6B72;
+  font-family: "PT Sans", Verdana, Arial, sans-serif;
+  font-size: 13px;
+}
+
+.chat .messages{
+  height: 300px;
+  border: 1px solid #d4d4d4;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 5px;
+  width:70%;
+  float: left;
+}
+
+.chat .userList{
+  width: 28%;
+  height: 300px;
+  border: 1px solid #d4d4d4;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 5px;
+}
+
+.chat .userList .listItem:hover{
+  font-weight: bold;
+  background-color: #428BCA;
+  cursor: pointer;
+  color: #ffffff;
+}
+
+.chat .nick{
+  width: 10%;
+}
+
+.chat .alignChatArea
+{
+  display: inline-block;
+  width: 100%;
+}
+
+.chat .messages .user{
+  color: #B22222;
+}
+
+.chat .message{
+  width: 70%;
+}
+
+.chat .messages .msgSystem{
+  font-style: italic;
+}
+
+.chat .panel{
+  margin-top: 8px;
+  display: inline-block;
+  width: 100%;
+}
+
+.chat .panel .inputMessage{
+  width: 60%;
+}
+
+#message_text{
+  width: 73%;
+  display: inline-block;
+  margin-left: 8px;
+}
+
+.chat button
+{
+  width: 10%;
+}

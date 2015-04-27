@@ -1,0 +1,33 @@
+<% layout('layouts/layout') %>
+<% block('title', title) %>
+<p>Welcome to very simple chat, <%=user %></p>
+
+<div class="chat">
+<div class="alignChatArea">
+<div data-bind="foreach: messages" class="messages" id="messages">
+    <!-- ko if: $data.nick === null -->
+    <div data-bind="text:$data.message" class="msgSystem"></div>
+    <!-- /ko -->
+    <!-- ko if: $data.nick !== null -->
+    <div><b  data-bind="text:$data.nick" class="user"></b> : <span  data-bind="text:$data.message"></span></div>
+    <!-- /ko -->
+</div>
+<div data-bind="foreach:userList" class="userList">
+    <div data-bind="text: $data.nick,click: $parent.openPrivateWindow" class="listItem" data-toggle="modal" data-target="#myPrivateMessages"></div>
+</div>
+
+</div>
+
+<div class="panel">
+        <% if (user) { %>
+    <span class="nick">Send message as <b id="nickName"><%=user %></b></span>
+       <% }%>
+    <input data-bind="hasfocus:hasFocus,value:sendingmessage" type="text" name="message_text" id="message_text">
+    <button data-bind="click:sendMessage" type="button" id="message_btn" class="btn btn-primary">Send</button>
+</div>
+</div>
+
+<%- partial('privateMessages') %>
+
+<script src="http://localhost:3000/socket.io/socket.io.js"></script>
+<script src="/viewModels/chatViewModel.js"></script>

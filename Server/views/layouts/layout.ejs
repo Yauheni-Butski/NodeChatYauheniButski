@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+  <head>
+   <title><%- blocks.title %></title>
+    <link rel='stylesheet' href='/stylesheets/style.css'>
+    <link href="/vendor/bootstrap/dist/css/bootstrap.css" rel="stylesheet">
+    <script src="/vendor/jquery/dist/jquery.js"></script>
+    <script src="/vendor/bootstrap/dist/js/bootstrap.js"></script>
+    <script src="/vendor/knockout/build/output/knockout-latest.debug.js"></script>
+  </head>
+<body cz-shortcut-listen="true">
+<%- partial('navbar') %>
+
+
+<div class="container">
+  <div class="starter-template">
+    <h1><%- blocks.title %></h1>
+    <%- body %>
+  </div>
+</div>
+
+</body>
+</html>
