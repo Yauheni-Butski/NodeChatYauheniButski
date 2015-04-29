@@ -44,13 +44,20 @@ io.sockets.on('connection', function (client) {
   //subscribe to event on "connect" from user
   client.on('addNewUser',function(data) {
     try{
-      //send to user all other users in room
-      client.emit('showUsersInRoom',listOfUsers);
-      //after that, add current user to list of user on server
-      listOfUsers.push({id:idClientSocket,nick:data.nick}); //+ socket:client
-      UserSockets[idClientSocket] = client;
-      //send message to all client except yourself
-      client.broadcast.emit('addNewUser',{id:idClientSocket,nick:data.nick});
+      var isAlreadyInRoom = CheckUserInRoom(data.nick);
+      if (!isAlreadyInRoom) {
+        //send to user all other users in room
+        client.emit('showUsersInRoom', listOfUsers);
+        //after that, add current user to list of user on server
+        listOfUsers.push({id: idClientSocket, nick: data.nick}); //+ socket:client
+        UserSockets[idClientSocket] = client;
+        //send message to all client except yourself
+        client.broadcast.emit('addNewUser', {id: idClientSocket, nick: data.nick});
+      }
+      else
+      {
+        client.emit('userAlreadyExist');
+      }
     }
     catch (e){
       console.log(e);
@@ -83,6 +90,19 @@ io.sockets.on('connection', function (client) {
      //listOfUsers[i].socket.emit('incomingPrivateMessage',{message:data.message,id:listOfUsers[i].id,nick:listOfUsers[i].nick});
   });
 });
+
+//Function for check availability user in room
+function CheckUserInRoom(nick)
+{
+  for (var i=0;i < listOfUsers.length; i++)
+  {
+    if (listOfUsers[i].nick === nick)
+    {
+      return true;
+    }
+  }
+  return false;
+}
 
 /**Listen on provided port, on all network interfaces*/
 server.listen(app.get('port'));

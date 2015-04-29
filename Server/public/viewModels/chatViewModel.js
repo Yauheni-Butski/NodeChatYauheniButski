@@ -12,6 +12,14 @@ $(function (){
             self.id = id;
             self.nick = nick;
     }
+    //User in UserList Model
+    function UserListItem(user)
+    {
+        var self = this;
+            self.id = user.id;
+            self.nick = user.nick;
+            self.countUnreadMessage = ko.observable(0);
+    }
 
     //View Model
     function ChatMainViewModal()
@@ -20,7 +28,8 @@ $(function (){
         //Observable information
         self.messages = ko.observableArray([]); //all public messages
         self.sendingmessage = ko.observable(""); //public printing message
-        self.privateMessages = [[new User("testId","admin"),[new Message("testNick","Message1"),new Message("testNick","Message2"),new Message("testNick","Message3")]],[new User("testId2","user"),[new Message("testNick","UserMessage1"),new Message("testNick","UserMessage2")]]]; // all private message. [User][All private message with him]
+        // all private message. [User][All private message with him]
+        self.privateMessages = [[new User("testId","admin"),[new Message("testNick","Message1"),new Message("testNick","Message2"),new Message("testNick","Message3")]],[new User("testId2","user"),[new Message("testNick","UserMessage1"),new Message("testNick","UserMessage2")]]];
         self.hasFocus = ko.observable(true);
         self.userList = ko.observableArray([]);
         //Ye,this maybe not so good,but...
@@ -80,9 +89,24 @@ $(function (){
                     //display all messages
                     ko.utils.arrayPushAll(self.activePrivateMessages,self.privateMessages[i][1]);
                     self.activePrivateMessages.valueHasMutated();
+
+                    //c. Clear notification
+                    ko.utils.arrayForEach(viewModel.userList(),function(item) {
+                        if (item.id === userNick.id)
+                        {
+                            var unreadMsgCount = item.countUnreadMessage(0);
+                            //item.countUnreadMessage.valueHasMutated();
+                            return;
+                        }
+                    });
+
                     return;
                 }
             }
+        };
+        //5. When modal window will be close - change activeUser()
+        self.closeModalWindow = function(){
+          self.activePrivateUser(new User("",""));
         };
     } // end viewModel
 
@@ -104,8 +128,22 @@ $(function (){
                 //add new message to common massive
                 viewModel.privateMessages[i][1].push(new Message(data.nick,data.message));
                 //Check, if it for activeUser or not
-                if (data.idAuthor === viewModel.activePrivateUser().id)
-                    viewModel.activePrivateMessages.push(new Message(data.nick,data.message));
+                if (data.idAuthor === viewModel.activePrivateUser().id) {
+                    viewModel.activePrivateMessages.push(new Message(data.nick, data.message));
+                }
+                else
+                {
+                    //if we get message not for activePrivateUser (user with whom we talking now) - we create notification
+                    ko.utils.arrayForEach(viewModel.userList(),function(item) {
+                        if (item.id === data.idAuthor)
+                        {
+                            var unreadMsgCount = item.countUnreadMessage();
+                            unreadMsgCount++;
+                            item.countUnreadMessage(unreadMsgCount);
+                            //item.countUnreadMessage.valueHasMutated();
+                        }
+                    });
+                }
 
                 return;
             }
@@ -114,8 +152,21 @@ $(function (){
         if (!foundUser)
         {
             viewModel.privateMessages.push([new User(data.idAuthor,data.nick),[new Message(data.nick,data.message)]]);
-            if (data.idAuthor === viewModel.activePrivateUser().id)
-                viewModel.activePrivateMessages.push(new Message(data.nick,data.message));
+            if (data.idAuthor === viewModel.activePrivateUser().id) {
+                viewModel.activePrivateMessages.push(new Message(data.nick, data.message));
+            }else
+            {
+                //if we get message not for activePrivateUser (user with whom we talking now) - we create notification
+                ko.utils.arrayForEach(viewModel.userList(),function(item) {
+                    if (item.id === data.idAuthor)
+                    {
+                        var unreadMsgCount = item.countUnreadMessage();
+                        unreadMsgCount++;
+                        item.countUnreadMessage(unreadMsgCount);
+                        //item.countUnreadMessage.valueHasMutated();
+                    }
+                });
+            }
         }
 
         return;
@@ -137,20 +188,20 @@ $(function (){
         var socketId = (socket.id).toString();
         socket.emit('addNewUser',{id:socketId,nick:viewModel.name});
         //And add yourself to user list
-        viewModel.userList.push(new User(socketId,viewModel.name));
+        viewModel.userList.push(new UserListItem(new User(socketId,viewModel.name)));
     });
     socket.on('showUsersInRoom',function(listOfUser) {
         if (listOfUser.length != 0)
         {
             ko.utils.arrayForEach(listOfUser,function(item) {
-                viewModel.userList.push(new User(item.id,item.nick));
+                viewModel.userList.push(new UserListItem(new User(item.id,item.nick)));
             });
         }
     });
     socket.on('addNewUser',function(data)
     {
         //When we get event - add new User in user list
-        viewModel.userList.push(new User(data.id,data.nick));
+        viewModel.userList.push(new UserListItem(new User(data.id,data.nick)));
         //And send system message
         var date = new Date();
         viewModel.msg_system('User "'+data.nick+'" with us! '+ date.toTimeString());
@@ -178,5 +229,8 @@ $(function (){
     socket.on("incomingPrivateMessage",function(data)
     {
         addPrivateMessageInCommonStorage(data);
+    });
+    socket.on('userAlreadyExist',function() {
+        window.location.replace('/error');
     });
 });

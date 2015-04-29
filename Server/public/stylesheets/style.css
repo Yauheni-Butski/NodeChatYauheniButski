@@ -35,6 +35,25 @@ a {
   padding: 5px;
 }
 
+.chat .userListItem{
+  display: inline;
+}
+
+
+.chat .userList .listItem{
+  float: left;
+  width: 92%;
+}
+
+.chat .userList .unreadMsg{
+  background-color: #F00;
+  color: white;
+  float: left;
+  min-width: 8%;
+  text-align: center;
+  font-weight: bold;
+}
+
 .chat .userList .listItem:hover{
   font-weight: bold;
   background-color: #428BCA;

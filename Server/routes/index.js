@@ -7,6 +7,13 @@ router.get('/', checkAuth ,function(req, res, next) {
   res.render('index', { title: 'simple chat by Yauheni Butski' });
 });
 
+router.get('/error',function(req, res, next) {
+  var error = new Error('User with same credentials already in chat room!');
+  error.status = 500;
+  req.session.destroy();
+  next(error);
+});
+
 router.post('/logon', function (req, res, next) {
   'use strict';
   var username = req.body.username,

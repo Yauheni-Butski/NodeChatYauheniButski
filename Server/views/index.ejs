@@ -13,7 +13,11 @@
     <!-- /ko -->
 </div>
 <div data-bind="foreach:userList" class="userList">
-    <div data-bind="text: $data.nick,click: $parent.openPrivateWindow" class="listItem" data-toggle="modal" data-target="#myPrivateMessages"></div>
+ <!--    <div data-bind="text: $data.nick,click: $parent.openPrivateWindow" class="listItem" data-toggle="modal" data-target="#myPrivateMessages"></div>  -->
+    <div class="userListItem">
+        <span data-bind="text: $data.nick,click: $parent.openPrivateWindow" class="listItem" data-toggle="modal" data-target="#myPrivateMessages"></span>
+        <span data-bind="text: $data.countUnreadMessage, visible: $data.countUnreadMessage()!=0" class="unreadMsg"></span>
+    </div>
 </div>
 
 </div>
